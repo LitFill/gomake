@@ -68,7 +68,7 @@ help: ## Prints help for targets with comments
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: goMake <module_name>")
+		fmt.Println("Usage: gomake <module_name>")
 		os.Exit(1)
 	}
 
