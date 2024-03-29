@@ -2,6 +2,20 @@
 
 Sebuah aplikasi cli untuk memulai proyek Go barumu. Menggunakan git dan makefile.
 
+## Instalasi
+
+### go install
+
+gunakan go untuk memasang `gomake` :
+
+```console
+go install github.com/LitFill/gomake@latest
+```
+
+### dependensi
+
+`gomake` menggunakan git dan makefile, jadi perlu `git` dan `make` untuk terpasang terlebih dahulu.
+
 ## Penggunaan
 
 ```console

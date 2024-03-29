@@ -2,6 +2,20 @@
 
 Cli to start your new Go project. It uses git and makefile.
 
+## Installation
+
+### go install 
+
+use go to install `gomake` :
+
+```console
+go install github.com/LitFill/gomake@latest
+```
+
+### dependencies
+
+`gomake` uses git and makefile so it requires `git` and `make` to be installed.
+
 ## Usage
 
 ```console
