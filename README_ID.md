@@ -8,7 +8,7 @@ Sebuah aplikasi cli untuk memulai proyek Go barumu. Menggunakan git dan makefile
 
 gunakan go untuk memasang `gomake` :
 
-```console
+```bash
 go install github.com/LitFill/gomake@latest
 ```
 
@@ -18,7 +18,7 @@ go install github.com/LitFill/gomake@latest
 
 ## Penggunaan
 
-```console
+```bash
 gomake "LitFill/program"
 ```
 
@@ -26,7 +26,7 @@ perintah ini akan membuat direktori `program`, menjalankan `go mod init LitFill/
 
 kemudian kamu bisa menggunakan Makefile seperti ini:
 
-```console
+```bash
 make        # membangun program untuk linux
 make win    # membangun program untuk windows
 make run    # menjalankan program

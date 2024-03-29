@@ -8,7 +8,7 @@ Cli to start your new Go project. It uses git and makefile.
 
 use go to install `gomake` :
 
-```console
+```bash
 go install github.com/LitFill/gomake@latest
 ```
 
@@ -18,7 +18,7 @@ go install github.com/LitFill/gomake@latest
 
 ## Usage
 
-```console
+```bash
 gomake "LitFill/program"
 ```
 
@@ -26,7 +26,7 @@ it makes `program` dir, inits `go mod init LitFill/program`, makes `main.go`, in
 
 then you can use the Makefile like so:
 
-```console
+```bash
 make        # build for linux
 make win    # build for windows
 make run    # run the program
