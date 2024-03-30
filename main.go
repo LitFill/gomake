@@ -66,6 +66,9 @@ help: ## Prints help for targets with comments
 	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 `
 
+var readmeTempl = `# {{.ProgName}}
+`
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: gomake <module_name>")
@@ -103,6 +106,13 @@ func main() {
 	}
 	defer makeFile.Close()
 
+	readmeFile, err := os.Create("README.md")
+	if err != nil {
+		fmt.Println("Tidak bisa membuat file README.md, error:", err)
+		os.Exit(1)
+	}
+	defer readmeFile.Close()
+
 	templMain, err := template.New("main").Parse(mainTempl)
 	if err != nil {
 		fmt.Println("Tidak dapat membuat template, error:", err)
@@ -110,6 +120,12 @@ func main() {
 	}
 
 	templMake, err := template.New("make").Parse(makeTempl)
+	if err != nil {
+		fmt.Println("Tidak dapat membuat template, error:", err)
+		os.Exit(1)
+	}
+
+	templReadme, err := template.New("readme").Parse(readmeTempl)
 	if err != nil {
 		fmt.Println("Tidak dapat membuat template, error:", err)
 		os.Exit(1)
@@ -132,6 +148,12 @@ func main() {
 	}
 
 	err = templMake.Execute(makeFile, data)
+	if err != nil {
+		fmt.Println("Tidak dapat membuat template, error:", err)
+		os.Exit(1)
+	}
+
+	err = templReadme.Execute(readmeFile, data)
 	if err != nil {
 		fmt.Println("Tidak dapat membuat template, error:", err)
 		os.Exit(1)
