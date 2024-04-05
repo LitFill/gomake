@@ -69,19 +69,19 @@ RUNCMD := $(COMPILER) run
 
 .PHONY: all build run clean win help
 
-all: build ## Build the binary for Linux
+all: build win ## Build the binary for Linux and Windows
 
-build: main.go ## Actually build the binary
+build: main.go ## Build the binary for Linux
 	@echo "Building $(BINNAME) for Linux"
 	@$(BUILDCMD) $(OUTPUT) $(FLAGS)
 
-win: main.go ## Build the binary for Windows
+win: main.go ## Build the binary for a niche gaming os (Windows)
 	@echo "Building $(BINNAME) for Windows"
 	@$(BUILDCMD) $(OUTPUT).exe $(FLAGS)
 
 run: main.go ## Run the main.go
 	@echo "Running $(BINNAME)"
-	@$(RUNCMD) $(FLAGS) $^
+	@$(RUNCMD) $(FLAGS) .
 
 clean: ## Clean up
 	@echo "Cleaning up"
