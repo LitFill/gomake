@@ -26,7 +26,6 @@ type MetadataProyek struct {
 	AuthorName string
 	ModuleName string
 	ProgName   string
-	Year       string
 }
 
 func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProyek) error {
