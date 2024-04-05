@@ -20,6 +20,32 @@ func (c *Cmds) add(name string, cmd *exec.Cmd) {
 	(*c)[name] = cmd
 }
 
+type MetadataProyek struct {
+	AuthorName string
+	ModuleName string
+	ProgName   string
+}
+
+func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProyek) error {
+	file, err := os.Create(namaFile)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	t, err := template.New(namaFile).Parse(templ)
+	if err != nil {
+		return err
+	}
+
+	err = t.Execute(file, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 var mainTempl = `/*
   {{.ProgName}} {{.AuthorName}} <email>
 */
@@ -92,71 +118,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	mainFile, err := os.Create("main.go")
-	if err != nil {
-		fmt.Println("Tidak bisa membuat file main.go, error:", err)
-		os.Exit(1)
-	}
-	defer mainFile.Close()
-
-	makeFile, err := os.Create("Makefile")
-	if err != nil {
-		fmt.Println("Tidak bisa membuat file Makefile, error:", err)
-		os.Exit(1)
-	}
-	defer makeFile.Close()
-
-	readmeFile, err := os.Create("README.md")
-	if err != nil {
-		fmt.Println("Tidak bisa membuat file README.md, error:", err)
-		os.Exit(1)
-	}
-	defer readmeFile.Close()
-
-	templMain, err := template.New("main").Parse(mainTempl)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
+	peta := map[string]string{
+		"main.go":   mainTempl,
+		"Makefile":  makeTempl,
+		"README.md": readmeTempl,
 	}
 
-	templMake, err := template.New("make").Parse(makeTempl)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
-	}
-
-	templReadme, err := template.New("readme").Parse(readmeTempl)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
-	}
-
-	data := struct {
-		AuthorName string
-		ModuleName string
-		ProgName   string
-	}{
+	data := MetadataProyek{
 		AuthorName: authorName,
 		ModuleName: moduleName,
 		ProgName:   progName,
 	}
 
-	err = templMain.Execute(mainFile, data)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
-	}
-
-	err = templMake.Execute(makeFile, data)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
-	}
-
-	err = templReadme.Execute(readmeFile, data)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat template, error:", err)
-		os.Exit(1)
+	for nama, templ := range peta {
+		err = buatFileDenganTemplateDanEksekusi(nama, templ, data)
+		if err != nil {
+			fmt.Printf("Tidak dapat membuat %s, error: %s\n", nama, err)
+			os.Exit(1)
+		}
 	}
 
 	cmds := make(Cmds)
