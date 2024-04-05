@@ -8,10 +8,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"text/template"
-	"time"
 )
 
 type Cmds map[string]*exec.Cmd
