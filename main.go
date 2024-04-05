@@ -129,7 +129,6 @@ func main() {
 	names := strings.Split(moduleName, "/")
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
-	year := strconv.Itoa(time.Now().Year())
 
 	err := os.MkdirAll(progName, 0o755)
 	if err != nil {
@@ -147,14 +146,12 @@ func main() {
 		"main.go":   mainTempl,
 		"Makefile":  makeTempl,
 		"README.md": readmeTempl,
-		"LICENSE":   licenseTempl,
 	}
 
 	data := MetadataProyek{
 		AuthorName: authorName,
 		ModuleName: moduleName,
 		ProgName:   progName,
-		Year:       year,
 	}
 
 	for nama, templ := range peta {
