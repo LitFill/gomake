@@ -55,7 +55,7 @@ win: main.go ## Build the binary for Windows
 
 run: main.go ## Run the main.go
 	@echo "Running $(BINNAME)"
-	@$(RUNCMD) $(FLAGS) $^
+	@$(RUNCMD) $(FLAGS) .
 
 clean: ## Clean up
 	@echo "Cleaning up"
