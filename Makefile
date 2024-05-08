@@ -4,10 +4,11 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
+VERSION := 1.0.3
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win help
+.PHONY: all build run clean win help release gh
 
 all: build ## Build the binary for Linux
 
@@ -26,6 +27,23 @@ run: main.go ## Run the main.go
 clean: ## Clean up
 	@echo "Cleaning up"
 	@rm -f $(BINNAME)*
+
+release: build win ## Package the binary for release
+	@if [ -f "$(BINNAME)" ] && [ -f "$(BINNAME).exe" ]; then \
+		echo "Packaging $(BINNAME) for release"; \
+		tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"; \
+	else \
+	        echo "Error: Binary $(BINNAME) is missing for Linux or Windows."; \
+	        echo "Try running this command:"; \
+	        echo "\tmake"; \
+	fi
+
+gh: release ## Create a release on GitHub
+	@echo "Creating release $(VERSION) on GitHub"
+	@git tag -a v$(VERSION) -m "Version $(VERSION)"
+	@git push origin v$(VERSION)
+	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)"
+
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"
