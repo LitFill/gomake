@@ -62,10 +62,11 @@ BINNAME := {{.ProgName}}
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
+VERSION := 0.0.1
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win help
+.PHONY: all build run clean win release gh help
 
 all: build win ## Build the binary for Linux and Windows
 
@@ -84,6 +85,16 @@ run: main.go ## Run the main.go
 clean: ## Clean up
 	@echo "Cleaning up"
 	@rm -f $(BINNAME)*
+
+package: all ## Package the binary for release
+	@echo "Packaging $(BINNAME) for release"; \
+	@tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"; \
+
+release: package ## Create a release on GitHub
+	@echo "Creating release $(VERSION) on GitHub"
+	@git tag -a v$(VERSION) -m "Version $(VERSION)"
+	@git push origin v$(VERSION)
+	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)"
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"
