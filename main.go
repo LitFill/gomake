@@ -1,7 +1,6 @@
-/*
-goMake is a Go package that makes things
-Author: LitFill <marrazzy@gmail.com>
-*/
+// goMake is a Go package that makes things
+// go + make = gomake
+// Author: LitFill <marrazzy@gmail.com>
 package main
 
 import (
@@ -46,9 +45,8 @@ func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProy
 	return nil
 }
 
-var mainTempl = `/*
-  {{.ProgName}} {{.AuthorName}} <email>
-*/
+var mainTempl = `// {{.ProgName}}, {{.AuthorName}} <author at email dot com>
+// program for...
 package main
 
 import "fmt"
@@ -93,6 +91,8 @@ help: ## Prints help for targets with comments
 `
 
 var readmeTempl = `# {{.ProgName}}
+
+{{.ProgName}} by {{.AuthorName}}.
 `
 
 func main() {
