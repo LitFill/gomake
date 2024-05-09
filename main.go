@@ -87,8 +87,8 @@ clean: ## Clean up
 	@rm -f $(BINNAME)*
 
 package: all ## Package the binary for release
-	@echo "Packaging $(BINNAME) for release"; \
-	@tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"; \
+	@echo "Packaging $(BINNAME) for release"
+	@tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"
 
 release: package ## Create a release on GitHub
 	@echo "Creating release $(VERSION) on GitHub"
