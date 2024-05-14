@@ -4,7 +4,7 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
-VERSION := 1.0.5
+VERSION := 1.0.6
 
 RUNCMD := $(COMPILER) run
 
