@@ -5,11 +5,31 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
 	"text/template"
+
+	"github.com/LitFill/gomake/templat"
 )
+
+var logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+	// Level: slog.LevelDebug,
+	AddSource: true,
+}))
+
+func mayFatal[T comparable](val T, err error) T {
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	return val
+}
+
+func wrapErr(err error, msg string) error {
+	return fmt.Errorf("%s, error: %w", msg, err)
+}
 
 type Cmds map[string]*exec.Cmd
 
@@ -56,22 +76,16 @@ func main() {
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
-	err := os.MkdirAll(progName, 0o755)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat directory, error:", err)
-		os.Exit(1)
-	}
-
-	err = os.Chdir(progName)
-	if err != nil {
-		fmt.Printf("Tidak dapat pindah ke ./%s, error: %s\n", progName, err)
-		os.Exit(1)
-	}
+	mayFatal(0, wrapErr(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory"))
+	mayFatal(0, wrapErr(
+		os.Chdir(progName),
+		fmt.Sprintf("Tidak dapat pindah ke ./%s/", progName),
+	))
 
 	peta := map[string]string{
-		"main.go":   mainTempl,
-		"Makefile":  makeTempl,
-		"README.md": readmeTempl,
+		"main.go":   templat.MainTempl,
+		"Makefile":  templat.MakeTempl,
+		"README.md": templat.ReadmeTempl,
 	}
 
 	data := MetadataProyek{
@@ -81,11 +95,10 @@ func main() {
 	}
 
 	for nama, templ := range peta {
-		err = buatFileDenganTemplateDanEksekusi(nama, templ, data)
-		if err != nil {
-			fmt.Printf("Tidak dapat membuat %s, error: %s\n", nama, err)
-			os.Exit(1)
-		}
+		mayFatal(0, wrapErr(
+			buatFileDenganTemplateDanEksekusi(nama, templ, data),
+			fmt.Sprintf("Tidak dapat mengeksekusi %s", nama),
+		))
 	}
 
 	cmds := make(Cmds)
@@ -97,15 +110,13 @@ func main() {
 	cmds.add("commit", com("git", "commit", "-m", "initial commit"))
 
 	for name, cmd := range cmds {
-		err = cmd.Run()
-		if err != nil {
-			fmt.Printf("Tidak dapat menjalankan perintah %s, error: %s\n", name, err)
-			os.Exit(1)
-		}
+		mayFatal(0, wrapErr(
+			cmd.Run(),
+			fmt.Sprintf("Tidak dapat menjalankan perintah %s", name),
+		))
 	}
 
 	// pesan terakhir
-
 	fmt.Println()
 	fmt.Printf("Proyek %s telah dibuat\n", moduleName)
 	fmt.Printf("Silahkan pindah direktori dengan menjalankan 'cd %s'\n", progName)
