@@ -1,4 +1,18 @@
 
+<a name="v1.0.6"></a>
+## [v1.0.6](https://github.com/LitFill/gomake/compare/v1.0.5...v1.0.6)
+
+> 2024-05-14
+
+### Docs
+
+* **CHANGELOG.md:** add auto changelog
+
+### Refactor
+
+* **templating:** move each templs to a file
+
+
 <a name="v1.0.5"></a>
 ## [v1.0.5](https://github.com/LitFill/gomake/compare/v1.0.4...v1.0.5)
 
