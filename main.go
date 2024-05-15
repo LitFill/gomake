@@ -31,6 +31,11 @@ func wrapErr(err error, msg string) error {
 	return fmt.Errorf("%s, error: %w", msg, err)
 }
 
+func fatalWrap(err error, msg string) { mayFatal(0, wrapErr(err, msg)) }
+func fatalWrapf(err error, format string, a ...any) {
+	mayFatal(0, wrapErr(err, fmt.Sprintf(format, a...)))
+}
+
 type Cmds map[string]*exec.Cmd
 
 func (c *Cmds) add(name string, cmd *exec.Cmd) {
@@ -67,7 +72,7 @@ func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProy
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: gomake <module_name>")
+		fmt.Println("Usage: gomake <module_name>\nmodule_name = 'author/program'")
 		os.Exit(1)
 	}
 
@@ -76,11 +81,8 @@ func main() {
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
-	mayFatal(0, wrapErr(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory"))
-	mayFatal(0, wrapErr(
-		os.Chdir(progName),
-		fmt.Sprintf("Tidak dapat pindah ke ./%s/", progName),
-	))
+	fatalWrapf(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory %s", progName)
+	fatalWrapf(os.Chdir(progName), "Tidak dapat pindah ke ./%s/", progName)
 
 	peta := map[string]string{
 		"main.go":   templat.MainTempl,
@@ -95,10 +97,9 @@ func main() {
 	}
 
 	for nama, templ := range peta {
-		mayFatal(0, wrapErr(
-			buatFileDenganTemplateDanEksekusi(nama, templ, data),
-			fmt.Sprintf("Tidak dapat mengeksekusi %s", nama),
-		))
+		fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+			"Tidak dapat mengeksekusi %s", nama,
+		)
 	}
 
 	cmds := make(Cmds)
@@ -110,10 +111,7 @@ func main() {
 	cmds.add("commit", com("git", "commit", "-m", "initial commit"))
 
 	for name, cmd := range cmds {
-		mayFatal(0, wrapErr(
-			cmd.Run(),
-			fmt.Sprintf("Tidak dapat menjalankan perintah %s", name),
-		))
+		fatalWrapf(cmd.Run(), "Tidak dapat menjalankan perintah %s", name)
 	}
 
 	// pesan terakhir
