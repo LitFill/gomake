@@ -10,7 +10,7 @@ VERSION := 0.0.1
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win release gh help
+.PHONY: all build run clean win release gh help doc
 
 all: build win ## Build the binary for Linux and Windows
 
@@ -34,11 +34,17 @@ package: all ## Package the binary for release
 	@echo "Packaging $(BINNAME) for release"
 	@tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"
 
-release: package ## Create a release on GitHub
+release: package doc ## Create a release on GitHub
 	@echo "Creating release $(VERSION) on GitHub"
 	@git tag -a v$(VERSION) -m "Version $(VERSION)"
 	@git push origin v$(VERSION)
 	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION), view changelogs in CHANGELOG.md"
+
+doc: ## Create doc/scc.html
+	@echo "Creating scc documentation in html"
+	@mkdir -p "doc"
+	@touch "doc/scc.html"
+	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > doc/scc.html
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"
