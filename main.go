@@ -4,19 +4,47 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
 	"text/template"
+
+	"github.com/LitFill/gomake/templat"
 )
 
-type Cmds map[string]*exec.Cmd
+var logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+	// Level: slog.LevelDebug,
+	AddSource: true,
+}))
 
-func (c *Cmds) add(name string, cmd *exec.Cmd) {
+func mayFatal[T comparable](val T, err error) T {
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+	return val
+}
+
+func wrapErr(err error, msg string) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("%s, error: %w", msg, err)
+}
+
+func fatalWrapf(err error, format string, a ...any) {
+	mayFatal(0, wrapErr(err, fmt.Sprintf(format, a...)))
+}
+
+type CmdsList []*exec.Cmd
+
+func (c *CmdsList) add(cmd *exec.Cmd) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	(*c)[name] = cmd
+	*c = append(*c, cmd)
 }
 
 type MetadataProyek struct {
@@ -45,94 +73,48 @@ func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProy
 	return nil
 }
 
-var mainTempl = `// {{.ProgName}}, {{.AuthorName}} <author at email dot com>
-// program for...
-package main
-
-import "fmt"
-
 func main() {
-	fmt.Println("Hello from {{.ModuleName}}!")
-}
-`
+	var (
+		lib  bool
+		name string
+	)
+	flag.BoolVar(&lib, "lib", false, "for creating a lib instead of program")
+	flag.BoolVar(&lib, "l", false, "shorthand for -lib")
+	flag.StringVar(&name, "name", "LitFill/test", "name of the project")
+	flag.StringVar(&name, "n", "LitFill/test", "shorthand for -name")
 
-var makeTempl = `COMPILER := go
-BINNAME := {{.ProgName}}
+	flag.Parse()
 
-BUILDCMD := $(COMPILER) build
-OUTPUT := -o $(BINNAME)
-FLAGS := -v
-VERSION := 0.0.1
+	isLib := lib
+	moduleName := name
+	names := strings.Split(moduleName, "/")
 
-RUNCMD := $(COMPILER) run
+	if len(names) < 2 || len(os.Args) < 2 {
+		m := `Usage: gomake -n <module_name> [flags]
+module_name = 'author/program'
 
-.PHONY: all build run clean win release gh help
-
-all: build win ## Build the binary for Linux and Windows
-
-build: main.go ## Build the binary for Linux
-	@echo "Building $(BINNAME) for Linux"
-	@$(BUILDCMD) $(OUTPUT) $(FLAGS)
-
-win: main.go ## Build the binary for a niche gaming os (Windows)
-	@echo "Building $(BINNAME) for Windows"
-	@$(BUILDCMD) $(OUTPUT).exe $(FLAGS)
-
-run: main.go ## Run the main.go
-	@echo "Running $(BINNAME)"
-	@$(RUNCMD) $(FLAGS) .
-
-clean: ## Clean up
-	@echo "Cleaning up"
-	@rm -f $(BINNAME)*
-
-package: all ## Package the binary for release
-	@echo "Packaging $(BINNAME) for release"
-	@tar -czf "$(BINNAME)-$(VERSION).tar.gz" "$(BINNAME)" "$(BINNAME).exe"
-
-release: package ## Create a release on GitHub
-	@echo "Creating release $(VERSION) on GitHub"
-	@git tag -a v$(VERSION) -m "Version $(VERSION)"
-	@git push origin v$(VERSION)
-	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)"
-
-help: ## Prints help for targets with comments
-	@echo "Available targets:"
-	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-`
-
-var readmeTempl = `# {{.ProgName}}
-
-{{.ProgName}} by {{.AuthorName}}.
-`
-
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: gomake <module_name>")
+flag options:
+	-lib  or -l:   create library instead
+	-name or -n:   the name of the module in format of "author/program"`
+		fmt.Println(m)
 		os.Exit(1)
 	}
 
-	moduleName := os.Args[1]
-	names := strings.Split(moduleName, "/")
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
-	err := os.MkdirAll(progName, 0o755)
-	if err != nil {
-		fmt.Println("Tidak dapat membuat directory, error:", err)
-		os.Exit(1)
-	}
-
-	err = os.Chdir(progName)
-	if err != nil {
-		fmt.Printf("Tidak dapat pindah ke ./%s, error: %s\n", progName, err)
-		os.Exit(1)
-	}
+	fatalWrapf(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory %s", progName)
+	fatalWrapf(os.Chdir(progName), "Tidak dapat pindah ke ./%s/", progName)
 
 	peta := map[string]string{
-		"main.go":   mainTempl,
-		"Makefile":  makeTempl,
-		"README.md": readmeTempl,
+		"main.go":   templat.MainTempl,
+		"Makefile":  templat.MakeTempl,
+		"README.md": templat.ReadmeTempl,
+	}
+
+	petaLib := map[string]string{
+		fmt.Sprintf("%s.go", progName): templat.LibTempl,
+		"Makefile":                     templat.LibMake,
 	}
 
 	data := MetadataProyek{
@@ -141,36 +123,47 @@ func main() {
 		ProgName:   progName,
 	}
 
-	for nama, templ := range peta {
-		err = buatFileDenganTemplateDanEksekusi(nama, templ, data)
-		if err != nil {
-			fmt.Printf("Tidak dapat membuat %s, error: %s\n", nama, err)
-			os.Exit(1)
+	if isLib {
+		for nama, templ := range petaLib {
+			fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+				"Tidak dapat mengeksekusi %s", nama,
+			)
+		}
+	} else {
+		for nama, templ := range peta {
+			fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+				"Tidak dapat mengeksekusi %s", nama,
+			)
 		}
 	}
 
-	cmds := make(Cmds)
+	cmdslist := make(CmdsList, 0)
 	com := exec.Command
 
-	cmds.add("init", com("go", "mod", "init", moduleName))
-	cmds.add("git", com("git", "init"))
-	cmds.add("git add", com("git", "add", "."))
-	cmds.add("commit", com("git", "commit", "-m", "initial commit"))
+	if isLib {
+		cmdslist.add(com("go", "mod", "init", fmt.Sprintf("github.com/%s", moduleName)))
+	} else {
+		cmdslist.add(com("go", "mod", "init", moduleName))
+	}
+	cmdslist.add(com("git", "init"))
+	cmdslist.add(com("git", "add", "."))
+	cmdslist.add(com("git", "commit", "-m", "initial commit"))
 
-	for name, cmd := range cmds {
-		err = cmd.Run()
-		if err != nil {
-			fmt.Printf("Tidak dapat menjalankan perintah %s, error: %s\n", name, err)
-			os.Exit(1)
-		}
+	for _, cmd := range cmdslist {
+		fatalWrapf(cmd.Run(), "Tidak dapat menjalankan perintah %s", cmd.String())
 	}
 
 	// pesan terakhir
-
 	fmt.Println()
-	fmt.Printf("Proyek %s telah dibuat\n", moduleName)
-	fmt.Printf("Silahkan pindah direktori dengan menjalankan 'cd %s'\n", progName)
-	fmt.Println("Disarankan untuk menjalankan 'go mod tidy'")
-	fmt.Println("Jalankan program dengan 'make run'")
-	fmt.Println("Compile dengan menjalankan 'make'")
+	if isLib {
+		fmt.Printf("-- Proyek github.com/%s telah dibuat\n", moduleName)
+	} else {
+		fmt.Printf("-- Proyek %s telah dibuat\n", moduleName)
+	}
+	fmt.Printf("-- Silahkan pindah direktori dengan menjalankan 'cd %s'\n", progName)
+	fmt.Println("-- Disarankan untuk menjalankan 'go mod tidy'")
+	if !isLib {
+		fmt.Println("-- Jalankan program dengan 'make run'")
+		fmt.Println("-- Compile dengan menjalankan 'make'")
+	}
 }
