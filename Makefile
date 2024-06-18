@@ -4,11 +4,11 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
-VERSION := 1.0.5
+VERSION := 1.0.8
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win help release gh
+.PHONY: all build run clean win help release gh doc
 
 all: build ## Build the binary for Linux
 
@@ -44,6 +44,11 @@ gh: release ## Create a release on GitHub
 	@git push origin v$(VERSION)
 	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)"
 
+doc: ## Create doc/scc.html
+	@echo "Creating scc documentation in html"
+	@mkdir -p "doc"
+	@touch "doc/scc.html"
+	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > doc/scc.html
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"

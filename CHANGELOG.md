@@ -1,10 +1,36 @@
 
+<a name="v1.0.7"></a>
+## [v1.0.7](https://github.com/LitFill/gomake/compare/v1.0.6...v1.0.7)
+
+> 2024-05-15
+
+### Docs
+
+* **chlog:** update changelog
+* **doc:** adding documentation tooling
+* **scc:** add scc.html
+
+
+<a name="v1.0.6"></a>
+## [v1.0.6](https://github.com/LitFill/gomake/compare/v1.0.5...v1.0.6)
+
+> 2024-05-14
+
+### Code Refactoring
+
+* **templating:** move each templs to a file
+
+### Docs
+
+* **CHANGELOG.md:** add auto changelog
+
+
 <a name="v1.0.5"></a>
 ## [v1.0.5](https://github.com/LitFill/gomake/compare/v1.0.4...v1.0.5)
 
 > 2024-05-09
 
-### Feat
+### Features
 
 * **core:** add ignore rule
 
@@ -20,7 +46,7 @@
 
 > 2024-05-08
 
-### Feat
+### Features
 
 * **main.go:** add package and release target
 
@@ -42,21 +68,21 @@
 
 > 2024-05-08
 
+### Bug Fixes
+
+* **main.go:** fix makefile template in make run command
+
 ### Docs
 
 * **LICENSE:** add License
 
-### Feat
+### Features
 
 * **main.go:** menggunakan license template
 * **main.go:** add license template
 * **main.go:** necessary imports
 * **main.go:** menambah informasi tahun
 * **main.go:** add readme templ
-
-### Fix
-
-* **main.go:** fix makefile template in make run command
 
 ### Style
 
