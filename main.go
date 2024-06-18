@@ -136,6 +136,11 @@ flag options:
 			)
 		}
 	}
+	for nama, templ := range peta {
+		fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+			"Tidak dapat mengeksekusi %s", nama,
+		)
+	}
 
 	cmdslist := make(CmdsList, 0)
 	com := exec.Command
