@@ -6,38 +6,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
 	"text/template"
 
+	"github.com/LitFill/fatal"
 	"github.com/LitFill/gomake/templat"
 )
-
-var logger = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-	// Level: slog.LevelDebug,
-	AddSource: true,
-}))
-
-func mayFatal[T comparable](val T, err error) T {
-	if err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
-	}
-	return val
-}
-
-func wrapErr(err error, msg string) error {
-	if err == nil {
-		return nil
-	}
-	return fmt.Errorf("%s, error: %w", msg, err)
-}
-
-func fatalWrapf(err error, format string, a ...any) {
-	mayFatal(0, wrapErr(err, fmt.Sprintf(format, a...)))
-}
 
 type CmdsList []*exec.Cmd
 
@@ -103,8 +79,8 @@ flag options:
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
-	fatalWrapf(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory %s", progName)
-	fatalWrapf(os.Chdir(progName), "Tidak dapat pindah ke ./%s/", progName)
+	fatal.Log(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory %s", progName)
+	fatal.Log(os.Chdir(progName), "Tidak dapat pindah ke ./%s/", progName)
 
 	peta := map[string]string{
 		"main.go":   templat.MainTempl,
@@ -125,21 +101,16 @@ flag options:
 
 	if isLib {
 		for nama, templ := range petaLib {
-			fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
 				"Tidak dapat mengeksekusi %s", nama,
 			)
 		}
 	} else {
 		for nama, templ := range peta {
-			fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
+			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
 				"Tidak dapat mengeksekusi %s", nama,
 			)
 		}
-	}
-	for nama, templ := range peta {
-		fatalWrapf(buatFileDenganTemplateDanEksekusi(nama, templ, data),
-			"Tidak dapat mengeksekusi %s", nama,
-		)
 	}
 
 	cmdslist := make(CmdsList, 0)
@@ -155,7 +126,7 @@ flag options:
 	cmdslist.add(com("git", "commit", "-m", "initial commit"))
 
 	for _, cmd := range cmdslist {
-		fatalWrapf(cmd.Run(), "Tidak dapat menjalankan perintah %s", cmd.String())
+		fatal.Log(cmd.Run(), "Tidak dapat menjalankan perintah %s", cmd.String())
 	}
 
 	// pesan terakhir
