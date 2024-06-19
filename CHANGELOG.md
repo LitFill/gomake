@@ -1,4 +1,19 @@
 
+<a name="v1.0.8"></a>
+## [v1.0.8](https://github.com/LitFill/gomake/compare/v1.0.7...v1.0.8)
+
+> 2024-06-19
+
+### Chore
+
+* **push:** from past push
+
+### Features
+
+* **main:** Many improvements
+* **template:** Separate into its own folder
+
+
 <a name="v1.0.7"></a>
 ## [v1.0.7](https://github.com/LitFill/gomake/compare/v1.0.6...v1.0.7)
 
@@ -23,10 +38,6 @@
 ### Docs
 
 * **CHANGELOG.md:** add auto changelog
-
-### Refactor
-
-* **templating:** move each templs to a file
 
 
 <a name="v1.0.5"></a>
