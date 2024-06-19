@@ -38,7 +38,7 @@ release: package doc ## Create a release on GitHub
 	@echo "Creating release $(VERSION) on GitHub"
 	@git tag -a v$(VERSION) -m "Version $(VERSION)"
 	@git push origin v$(VERSION)
-	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --generate-notes --notes-from-tag --title "$(VERSION)" --notes "Release $(VERSION), view changelogs in CHANGELOG.md"
+	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --generate-notes --notes-from-tag --title "$(VERSION)" --notes "Release $(VERSION), view changelogs in [CHANGELOG.md](https://github.com/{{.AuthorName}}/{{.ProgName}}/blob/main/CHANGELOG.md)"
 
 doc: ## Create doc/scc.html
 	@echo "Creating scc documentation in html"

@@ -38,11 +38,11 @@ release: build win ## Package the binary for release
 	        echo "\tmake"; \
 	fi
 
-gh: release ## Create a release on GitHub
+gh: release changelog ## Create a release on GitHub
 	@echo "Creating release $(VERSION) on GitHub"
 	@git tag -a v$(VERSION) -m "Version $(VERSION)"
 	@git push origin v$(VERSION)
-	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)"
+	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)\nsee [CHANGELOG.md](https://github.com/LitFill/gomake/blob/main/CHANGELOG.md)."
 
 doc: ## Create doc/scc.html
 	@echo "Creating scc documentation in html"
