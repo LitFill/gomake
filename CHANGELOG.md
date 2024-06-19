@@ -1,4 +1,16 @@
 
+<a name="v1.0.9"></a>
+## [v1.0.9](https://github.com/LitFill/gomake/compare/v1.0.8...v1.0.9)
+
+> 2024-06-19
+
+### Features
+
+* **main:** Use LitFill/fatal lib.
+* **make:** link Changelog.md.
+* **make:** Add changelog target.
+
+
 <a name="v1.0.8"></a>
 ## [v1.0.8](https://github.com/LitFill/gomake/compare/v1.0.7...v1.0.8)
 
