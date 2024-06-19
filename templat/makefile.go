@@ -10,7 +10,7 @@ VERSION := 0.0.1
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win release gh help doc
+.PHONY: all build win run clean package release doc changelog gh help 
 
 all: build win ## Build the binary for Linux and Windows
 
@@ -45,6 +45,10 @@ doc: ## Create doc/scc.html
 	@mkdir -p "doc"
 	@touch "doc/scc.html"
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > doc/scc.html
+
+changelog: ## Generate CHANGELOG.md
+  @echo "Generating CHANGELOG.md"
+  @git-chglog > CHANGELOG.md
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"

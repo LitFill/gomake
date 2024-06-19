@@ -4,11 +4,11 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
-VERSION := 1.0.8
+VERSION := 1.0.9
 
 RUNCMD := $(COMPILER) run
 
-.PHONY: all build run clean win help release gh doc
+.PHONY: all build run clean win help release gh doc changelog
 
 all: build ## Build the binary for Linux
 
@@ -49,6 +49,10 @@ doc: ## Create doc/scc.html
 	@mkdir -p "doc"
 	@touch "doc/scc.html"
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > doc/scc.html
+
+changelog: ## Generate CHANGELOG.md 
+	@echo "Generating CHANGELOG.md"
+	@git-chglog > CHANGELOG.md
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"
