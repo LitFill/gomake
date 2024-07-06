@@ -15,18 +15,41 @@ import (
 	"github.com/LitFill/gomake/templat"
 )
 
-type CmdsList []*exec.Cmd
+type Config struct {
+	name   string
+	lib    bool
+	logger bool
+}
 
-func (c *CmdsList) add(cmd *exec.Cmd) {
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	*c = append(*c, cmd)
+func buatDirDanMasuk(nama string, loggr *slog.Logger) {
+	fatal.Log(os.Mkdir(nama, 0o755), loggr,
+		"Tidak dapat membuat directory", "dir", nama,
+	)
+	fatal.Log(os.Chdir(nama), loggr,
+		"Tidak dapat pindah directory", "dir", nama,
+	)
 }
 
 type MetadataProyek struct {
 	AuthorName string
 	ModuleName string
 	ProgName   string
+}
+
+func newMetadata(author string, module string, program string) MetadataProyek {
+	return MetadataProyek{
+		AuthorName: author,
+		ModuleName: module,
+		ProgName:   program,
+	}
+}
+
+type CmdsList []*exec.Cmd
+
+func (c *CmdsList) add(cmd *exec.Cmd) {
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	*c = append(*c, cmd)
 }
 
 func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProyek) error {
