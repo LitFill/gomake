@@ -41,18 +41,22 @@ release: package doc ## Create a release on GitHub
 	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --generate-notes --notes-from-tag --title "$(VERSION)" --notes "Release $(VERSION), view changelogs in [CHANGELOG.md](https://github.com/{{.AuthorName}}/{{.ProgName}}/blob/main/CHANGELOG.md)"
 
 docs: ## Create docs/scc.html
-	@ifeq ($(shell which scc),)	echo "scc is not installed"
-	@echo "installing scc..."
-	@go install github.com/boyter/scc/v3@latest
+	@if ! [ -x "$(shell which scc)" ]; then \
+		echo "scc is not installed"; \
+		echo "installing scc..."; \
+		go install github.com/boyter/scc/v3@latest; \
+	fi
 	@echo "Creating scc documentation in html"
 	@mkdir -p "docs"
 	@touch "docs/scc.html"
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > docs/scc.html
 
 changelog: ## Generate CHANGELOG.md 
-	@ifeq ($(shell which git-chglog),)	echo "git-chglog is not installed"
-	@echo "installing git-chglog..."
-	@go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+	@if ! [ -x "$(shell which git-chglog)" ]; then \
+		echo "git-chglog is not installed"; \
+		echo "installing git-chglog..."; \
+		go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest; \
+	fi
 	@echo "Generating CHANGELOG.md"
 	@git-chglog > CHANGELOG.md
 

@@ -4,7 +4,7 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
-VERSION := 1.1.0
+VERSION := 1.1.1
 
 RUNCMD := $(COMPILER) run
 
@@ -45,9 +45,11 @@ gh: changelog release ## Create a release on GitHub
 	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --title "$(VERSION)" --notes "Release $(VERSION)\nsee [CHANGELOG.md](https://github.com/LitFill/gomake/blob/main/CHANGELOG.md)."
 
 docs: ## Create docs/scc.html
-	@ifeq ($(shell which scc),)	echo "scc is not installed"
-	@echo "installing scc..."
-	@go install github.com/boyter/scc/v3@latest
+	@if ! [ -x "$(shell which scc)" ]; then \
+		echo "scc is not installed"; \
+		echo "installing scc..."; \
+		go install github.com/boyter/scc/v3@latest; \
+	fi
 	@echo "Creating scc documentation in html"
 	@mkdir -p "docs"
 	@touch "docs/scc.html"
