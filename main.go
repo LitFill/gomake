@@ -114,6 +114,7 @@ func main() {
 		fatal.Log(exec.Command("gomake", "-h").Run(),
 			loggr, "cannot run help command",
 		)
+		os.Exit(1)
 	}
 
 	progName := names[len(names)-1]
