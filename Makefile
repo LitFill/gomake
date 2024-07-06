@@ -38,7 +38,7 @@ release: build win ## Package the binary for release
 	        echo "\tmake"; \
 	fi
 
-gh: release changelog ## Create a release on GitHub
+gh: changelog release ## Create a release on GitHub
 	@echo "Creating release $(VERSION) on GitHub"
 	@git tag -a v$(VERSION) -m "Version $(VERSION)"
 	@git push origin v$(VERSION)
@@ -54,9 +54,11 @@ docs: ## Create docs/scc.html
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > docs/scc.html
 
 changelog: ## Generate CHANGELOG.md 
-	@ifeq ($(shell which git-chglog),)	echo "git-chglog is not installed"
-	@echo "installing git-chglog..."
-	@go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+	@if ! [ -x "$(shell which git-chglog)" ]; then \
+		echo "git-chglog is not installed"; \
+		echo "installing git-chglog..."; \
+		go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest; \
+	fi
 	@echo "Generating CHANGELOG.md"
 	@git-chglog > CHANGELOG.md
 
