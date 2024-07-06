@@ -1,13 +1,16 @@
-// goMake is a Go package that makes things
-// go + make = gomake
+// gomake setups your go project.
+// go + make = gomake.
 // Author: LitFill <marrazzy@gmail.com>
 package main
 
 import (
 	"flag"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"text/template"
 
