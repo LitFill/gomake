@@ -131,47 +131,65 @@ func main() {
 	}
 
 	petaLib := map[string]string{
-		fmt.Sprintf("%s.go", progName): templat.LibTempl,
-		"Makefile":                     templat.LibMake,
+		progName + ".go": templat.LibTempl,
+		"Makefile":       templat.LibMake,
 	}
 
-	data := MetadataProyek{
-		AuthorName: authorName,
-		ModuleName: moduleName,
-		ProgName:   progName,
+	if isLog {
+		if !isLib {
+			peta["main.go"] = templat.MainTemplWithLog
+		} else {
+			petaLib[progName+".go"] = templat.LibTemplWithLog
+		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	//            mengeksekusi templat dengan data dan membuat filenya            //
+	////////////////////////////////////////////////////////////////////////////////
 	if isLib {
 		for nama, templ := range petaLib {
 			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
-				"Tidak dapat mengeksekusi %s", nama,
+				loggr, "Tidak dapat mengeksekusi template",
+				"file template", nama,
 			)
 		}
 	} else {
 		for nama, templ := range peta {
 			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
-				"Tidak dapat mengeksekusi %s", nama,
+				loggr, "Tidak dapat mengeksekusi template",
+				"file template", nama,
 			)
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	//      membuat dan menjalankan list command untuk menyiapkan projek go       //
+	////////////////////////////////////////////////////////////////////////////////
 	cmdslist := make(CmdsList, 0)
 	com := exec.Command
 
 	if isLib {
-		cmdslist.add(com("go", "mod", "init", fmt.Sprintf("github.com/%s", moduleName)))
+		cmdslist.add(com("go", "mod", "init", "github.com/"+moduleName))
 	} else {
 		cmdslist.add(com("go", "mod", "init", moduleName))
+	}
+	if isLog {
+		cmdslist.add(com("go", "get", "github.com/LitFill/fatal@latest"))
 	}
 	cmdslist.add(com("git", "init"))
 	cmdslist.add(com("git", "add", "."))
 	cmdslist.add(com("git", "commit", "-m", "initial commit"))
 
 	for _, cmd := range cmdslist {
-		fatal.Log(cmd.Run(), "Tidak dapat menjalankan perintah %s", cmd.String())
+		fatal.Log(cmd.Run(), loggr,
+			"Tidak dapat menjalankan perintah",
+			"perintah", cmd.String(),
+		)
 	}
 
-	// pesan terakhir
+	////////////////////////////////////////////////////////////////////////////////
+	//        mencetak pesan untuk user setelah selesai menyiapkan proyek         //
+	////////////////////////////////////////////////////////////////////////////////
 	fmt.Println()
 	if isLib {
 		fmt.Printf("-- Proyek github.com/%s telah dibuat\n", moduleName)
