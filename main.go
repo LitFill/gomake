@@ -73,38 +73,57 @@ func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProy
 }
 
 func main() {
-	var (
-		lib  bool
-		name string
-	)
-	flag.BoolVar(&lib, "lib", false, "for creating a lib instead of program")
-	flag.BoolVar(&lib, "l", false, "shorthand for -lib")
-	flag.StringVar(&name, "name", "LitFill/test", "name of the project")
-	flag.StringVar(&name, "n", "LitFill/test", "shorthand for -name")
+	////////////////////////////////////////////////////////////////////////////////
+	//           membuat config untuk variable flag dan meparsingnya              //
+	////////////////////////////////////////////////////////////////////////////////
+	config := Config{}
+	flag.BoolVar(&config.lib, "lib", false, "for creating a lib instead of program")
+	flag.BoolVar(&config.lib, "l", false, "shorthand for -lib")
+	flag.StringVar(&config.name, "name", "LitFill/test", "name of the project")
+	flag.StringVar(&config.name, "n", "LitFill/test", "shorthand for -name")
+	flag.BoolVar(&config.logger, "logger", false, "add logging using LitFill/fatal")
+	flag.BoolVar(&config.logger, "g", false, "shorthand for -logger")
 
 	flag.Parse()
 
-	isLib := lib
-	moduleName := name
+	////////////////////////////////////////////////////////////////////////////////
+	//                          mengklon flag agar aman                           //
+	////////////////////////////////////////////////////////////////////////////////
+	isLib := config.lib
+	moduleName := config.name
+	isLog := config.logger
+
+	////////////////////////////////////////////////////////////////////////////////
+	//                            setup LitFill/fatal                             //
+	////////////////////////////////////////////////////////////////////////////////
+	filename := filepath.Join(fatal.Assign(os.UserHomeDir())(
+		slog.Default(), "cannot access user home dir"), ".gomake.log.json",
+	)
+	log_file := fatal.CreateLogFile(filename)
+	defer log_file.Close()
+	loggr := fatal.CreateLogger(io.MultiWriter(log_file, os.Stderr), slog.LevelInfo)
+
+	////////////////////////////////////////////////////////////////////////////////
+	//                             mengolah data nama                             //
+	////////////////////////////////////////////////////////////////////////////////
 	names := strings.Split(moduleName, "/")
-
 	if len(names) < 2 || len(os.Args) < 2 {
-		m := `Usage: gomake -n <module_name> [flags]
-module_name = 'author/program'
-
-flag options:
-	-lib  or -l:   create library instead
-	-name or -n:   the name of the module in format of "author/program"`
-		fmt.Println(m)
-		os.Exit(1)
+		fatal.Log(exec.Command("gomake", "-h").Run(),
+			loggr, "cannot run help command",
+		)
 	}
 
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
-	fatal.Log(os.Mkdir(progName, 0o755), "Tidak dapat membuat directory %s", progName)
-	fatal.Log(os.Chdir(progName), "Tidak dapat pindah ke ./%s/", progName)
+	data := newMetadata(authorName, moduleName, progName)
 
+	// membuat direktori projek dan masuk ke dalamnya, melaporkan error lewat loggr
+	buatDirDanMasuk(progName, loggr)
+
+	////////////////////////////////////////////////////////////////////////////////
+	//                   membuat map templat untuk dieksekusi                     //
+	////////////////////////////////////////////////////////////////////////////////
 	peta := map[string]string{
 		"main.go":   templat.MainTempl,
 		"Makefile":  templat.MakeTempl,
