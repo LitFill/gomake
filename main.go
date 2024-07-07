@@ -26,6 +26,11 @@ type Config struct {
 	logger bool
 }
 
+func usageMsg() {
+	fmt.Println("usage: gomake --name Author/program\nflags:")
+	flag.PrintDefaults()
+}
+
 func buatDirDanMasuk(nama string, loggr *slog.Logger) {
 	fatal.Log(os.Mkdir(nama, 0o755), loggr,
 		"Tidak dapat membuat directory", "dir", nama,
@@ -33,6 +38,27 @@ func buatDirDanMasuk(nama string, loggr *slog.Logger) {
 	fatal.Log(os.Chdir(nama), loggr,
 		"Tidak dapat pindah directory", "dir", nama,
 	)
+}
+
+func validateName(logger *slog.Logger) bool {
+	isValid := true
+	flag.VisitAll(func(f *flag.Flag) {
+		if f.Name == "name" {
+			name := f.Value.String()
+			if name == "" {
+				usageMsg()
+				isValid = false
+			}
+			if len(strings.Split(name, "/")) < 2 {
+				logger.Error("invalid name",
+					"name", name,
+					"correct format", "Author/program",
+				)
+				isValid = false
+			}
+		}
+	})
+	return isValid
 }
 
 type MetadataProyek struct {
@@ -47,6 +73,26 @@ func newMetadata(author string, module string, program string) MetadataProyek {
 		ModuleName: module,
 		ProgName:   program,
 	}
+}
+
+func initMap(progName string, isLog bool, isLib bool) (map[string]string, map[string]string) {
+	peta := map[string]string{
+		"main.go":   templat.MainTempl,
+		"Makefile":  templat.MakeTempl,
+		"README.md": templat.ReadmeTempl,
+	}
+	petaLib := map[string]string{
+		progName + ".go": templat.LibTempl,
+		"Makefile":       templat.LibMake,
+	}
+	if isLog {
+		if !isLib {
+			peta["main.go"] = templat.MainTemplWithLog
+		} else {
+			petaLib[progName+".go"] = templat.LibTemplWithLog
+		}
+	}
+	return peta, petaLib
 }
 
 type CmdsList []*exec.Cmd
@@ -109,14 +155,11 @@ func main() {
 	////////////////////////////////////////////////////////////////////////////////
 	//                             mengolah data nama                             //
 	////////////////////////////////////////////////////////////////////////////////
-	names := strings.Split(moduleName, "/")
-	if len(names) < 2 || len(os.Args) < 2 {
-		fatal.Log(exec.Command("gomake", "-h").Run(),
-			loggr, "cannot run help command",
-		)
-		os.Exit(1)
+	isValid := validateName(loggr)
+	if !isValid {
+		return
 	}
-
+	names := strings.Split(moduleName, "/")
 	progName := names[len(names)-1]
 	authorName := names[len(names)-2]
 
@@ -125,27 +168,8 @@ func main() {
 	// membuat direktori projek dan masuk ke dalamnya, melaporkan error lewat loggr
 	buatDirDanMasuk(progName, loggr)
 
-	////////////////////////////////////////////////////////////////////////////////
-	//                   membuat map templat untuk dieksekusi                     //
-	////////////////////////////////////////////////////////////////////////////////
-	peta := map[string]string{
-		"main.go":   templat.MainTempl,
-		"Makefile":  templat.MakeTempl,
-		"README.md": templat.ReadmeTempl,
-	}
-
-	petaLib := map[string]string{
-		progName + ".go": templat.LibTempl,
-		"Makefile":       templat.LibMake,
-	}
-
-	if isLog {
-		if !isLib {
-			peta["main.go"] = templat.MainTemplWithLog
-		} else {
-			petaLib[progName+".go"] = templat.LibTemplWithLog
-		}
-	}
+	// membuat map templat untuk dieksekusi
+	peta, petaLib := initMap(progName, isLog, isLib)
 
 	////////////////////////////////////////////////////////////////////////////////
 	//            mengeksekusi templat dengan data dan membuat filenya            //
@@ -155,6 +179,7 @@ func main() {
 			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
 				loggr, "Tidak dapat mengeksekusi template",
 				"file template", nama,
+				"isLib", isLib,
 			)
 		}
 	} else {
@@ -162,6 +187,7 @@ func main() {
 			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
 				loggr, "Tidak dapat mengeksekusi template",
 				"file template", nama,
+				"isLib", isLib,
 			)
 		}
 	}
