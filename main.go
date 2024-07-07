@@ -4,7 +4,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"log/slog"
@@ -13,6 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	flag "github.com/spf13/pflag"
+	// "flag"
 
 	"github.com/LitFill/fatal"
 	"github.com/LitFill/gomake/templat"
@@ -79,22 +81,20 @@ func main() {
 	////////////////////////////////////////////////////////////////////////////////
 	//           membuat config untuk variable flag dan meparsingnya              //
 	////////////////////////////////////////////////////////////////////////////////
-	config := Config{}
-	flag.BoolVar(&config.lib, "lib", false, "for creating a lib instead of program")
-	flag.BoolVar(&config.lib, "l", false, "shorthand for -lib")
-	flag.StringVar(&config.name, "name", "LitFill/test", "name of the project")
-	flag.StringVar(&config.name, "n", "LitFill/test", "shorthand for -name")
-	flag.BoolVar(&config.logger, "logger", false, "add logging using LitFill/fatal")
-	flag.BoolVar(&config.logger, "g", false, "shorthand for -logger")
+	cfg := Config{}
+	flag.StringVarP(&cfg.name, "name", "n", "", "name of the project [author/program]")
+	flag.BoolVarP(&cfg.lib, "lib", "l", false, "create a lib instead of program")
+	flag.BoolVarP(&cfg.logger, "logger", "g", false, "add logging using LitFill/fatal")
+	flag.CommandLine.SortFlags = false
 
 	flag.Parse()
 
 	////////////////////////////////////////////////////////////////////////////////
 	//                          mengklon flag agar aman                           //
 	////////////////////////////////////////////////////////////////////////////////
-	isLib := config.lib
-	moduleName := config.name
-	isLog := config.logger
+	isLib := cfg.lib
+	moduleName := cfg.name
+	isLog := cfg.logger
 
 	////////////////////////////////////////////////////////////////////////////////
 	//                            setup LitFill/fatal                             //
