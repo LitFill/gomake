@@ -1,4 +1,29 @@
 
+<a name="v1.1.0"></a>
+## [v1.1.0](https://github.com/LitFill/gomake/compare/v1.0.9...v1.1.0)
+
+> 2024-07-06
+
+### Bug Fixes
+
+* **main:** forgot the os.Exit on help cmd
+
+### Chore
+
+* **make:** bump version
+* **proj:** exclude .vscode dir
+
+### Docs
+
+* **package:** update package documentation
+
+### Features
+
+* **deps:** add LitFill/fatal
+* **main:** use latest version LitFill/fatal and some refactor
+* **main:** some changes and docs
+
+
 <a name="v1.0.9"></a>
 ## [v1.0.9](https://github.com/LitFill/gomake/compare/v1.0.8...v1.0.9)
 
