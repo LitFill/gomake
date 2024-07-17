@@ -16,7 +16,10 @@ var MainTemplWithLog = `// {{ .ProgName }}, {{ .AuthorName }} <author at email d
 package main
 
 import (
-	"fmt"
+	"io"
+	"log/slog"
+	"os"
+
 	"github.com/LitFill/fatal"
 )
 
@@ -24,6 +27,6 @@ func main() {
 	logFile := fatal.CreateLogFile("log.json")
 	defer logFile.Close()
 	logger := fatal.CreateLogger(io.MultiWriter(logFile,os.Stderr), slog.LevelInfo)
-	fmt.Println("Hello from {{ .ModuleName }}!")
+	logger.Info("Hello from {{ .ModuleName }}!")
 }
 `

@@ -1,4 +1,6 @@
 github.com/LitFill/fatal v0.1.8 h1:Qbs0UtSGl8yx2o0OynzYZm4XLd5PCk+Znvl5zCCFU/8=
 github.com/LitFill/fatal v0.1.8/go.mod h1:wzjKuEkQl+S3mHGtMFi1VXqfMLO5AYV2ElTX2Zh4Seg=
+github.com/LitFill/fatal v0.1.9 h1:Btrl2QeFFGllwUEyYepdxKVyf7YHk9XFkmfJ8tuDALs=
+github.com/LitFill/fatal v0.1.9/go.mod h1:wzjKuEkQl+S3mHGtMFi1VXqfMLO5AYV2ElTX2Zh4Seg=
 github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
 github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=

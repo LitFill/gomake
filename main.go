@@ -17,6 +17,7 @@ import (
 	// "flag"
 
 	"github.com/LitFill/fatal"
+
 	"github.com/LitFill/gomake/templat"
 )
 
@@ -48,6 +49,7 @@ func validateName(logger *slog.Logger) bool {
 			if name == "" {
 				usageMsg()
 				isValid = false
+				return
 			}
 			if len(strings.Split(name, "/")) < 2 {
 				logger.Error("invalid name",
@@ -55,6 +57,7 @@ func validateName(logger *slog.Logger) bool {
 					"correct format", "Author/program",
 				)
 				isValid = false
+				return
 			}
 		}
 	})
@@ -123,6 +126,15 @@ func buatFileDenganTemplateDanEksekusi(namaFile, templ string, data MetadataProy
 	return nil
 }
 
+func executeCmds(cmdslist CmdsList, logger *slog.Logger) {
+	for _, cmd := range cmdslist {
+		fatal.Log(cmd.Run(), logger,
+			"Tidak dapat menjalankan perintah",
+			"perintah", cmd.String(),
+		)
+	}
+}
+
 func main() {
 	////////////////////////////////////////////////////////////////////////////////
 	//           membuat config untuk variable flag dan meparsingnya              //
@@ -146,11 +158,10 @@ func main() {
 	//                            setup LitFill/fatal                             //
 	////////////////////////////////////////////////////////////////////////////////
 	filename := filepath.Join(fatal.Assign(os.UserHomeDir())(
-		slog.Default(), "cannot access user home dir"), ".gomake.log.json",
-	)
-	log_file := fatal.CreateLogFile(filename)
-	defer log_file.Close()
-	loggr := fatal.CreateLogger(io.MultiWriter(log_file, os.Stderr), slog.LevelInfo)
+		slog.Default(), "cannot access user home dir"), ".gomake.log.json")
+	logFile := fatal.CreateLogFile(filename)
+	defer logFile.Close()
+	loggr := fatal.CreateLogger(io.MultiWriter(logFile, os.Stderr), slog.LevelInfo)
 
 	////////////////////////////////////////////////////////////////////////////////
 	//                             mengolah data nama                             //
@@ -179,8 +190,7 @@ func main() {
 			fatal.Log(buatFileDenganTemplateDanEksekusi(nama, templ, data),
 				loggr, "Tidak dapat mengeksekusi template",
 				"file template", nama,
-				"isLib", isLib,
-			)
+				"isLib", isLib)
 		}
 	} else {
 		for nama, templ := range peta {
@@ -210,12 +220,7 @@ func main() {
 	cmdslist.add(com("git", "add", "."))
 	cmdslist.add(com("git", "commit", "-m", "initial commit"))
 
-	for _, cmd := range cmdslist {
-		fatal.Log(cmd.Run(), loggr,
-			"Tidak dapat menjalankan perintah",
-			"perintah", cmd.String(),
-		)
-	}
+	executeCmds(cmdslist, loggr)
 
 	////////////////////////////////////////////////////////////////////////////////
 	//        mencetak pesan untuk user setelah selesai menyiapkan proyek         //

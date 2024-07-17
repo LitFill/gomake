@@ -10,7 +10,7 @@ release: doc ## Create a release on GitHub
 	@git push origin v$(VERSION)
 	@gh release create v$(VERSION) --generate-notes --notes-from-tag --notes "Release $(VERSION), view changelogs in CHANGELOG.md"
 
-docs: ## Create docs/scc.html
+docs: changelog ## Create docs/scc.html
 	@if ! [ -x "$(shell which scc)" ]; then \
 		echo "scc is not installed"; \
 		echo "installing scc..."; \
@@ -20,6 +20,15 @@ docs: ## Create docs/scc.html
 	@mkdir -p "docs"
 	@touch "docs/scc.html"
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > docs/scc.html
+
+changelog: ## Generate CHANGELOG.md 
+	@if ! [ -x "$(shell which git-chglog)" ]; then \
+		echo "git-chglog is not installed"; \
+		echo "installing git-chglog..."; \
+		go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest; \
+	fi
+	@echo "Generating CHANGELOG.md"
+	@git-chglog > CHANGELOG.md
 
 help: ## Prints help for targets with comments
 	@echo "Available targets:"

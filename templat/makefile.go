@@ -40,7 +40,7 @@ release: package doc ## Create a release on GitHub
 	@git push origin v$(VERSION)
 	@gh release create v$(VERSION) "$(BINNAME)-$(VERSION).tar.gz" --generate-notes --notes-from-tag --title "$(VERSION)" --notes "Release $(VERSION), view changelogs in [CHANGELOG.md](https://github.com/{{.AuthorName}}/{{.ProgName}}/blob/main/CHANGELOG.md)"
 
-docs: ## Create docs/scc.html
+docs: changelog ## Create docs/scc.html
 	@if ! [ -x "$(shell which scc)" ]; then \
 		echo "scc is not installed"; \
 		echo "installing scc..."; \
