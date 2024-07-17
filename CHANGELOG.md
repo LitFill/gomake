@@ -1,4 +1,34 @@
 
+<a name="v1.1.2"></a>
+## [v1.1.2](https://github.com/LitFill/gomake/compare/v1.1.1...v1.1.2)
+
+> 2024-07-17
+
+### Code Refactoring
+
+* **main:** bunch of refactor
+
+### Docs
+
+* **CHANGELOG:** update changelog
+* **scc:** rename doc to docs
+
+### Features
+
+* **flag:** use spf13/pflag
+
+
+<a name="v1.1.1"></a>
+## [v1.1.1](https://github.com/LitFill/gomake/compare/v1.1.0...v1.1.1)
+
+> 2024-07-06
+
+### Bug Fixes
+
+* **make:** some bug in checking scc and git-chglog
+* **make:** fix the changelog target
+
+
 <a name="v1.1.0"></a>
 ## [v1.1.0](https://github.com/LitFill/gomake/compare/v1.0.9...v1.1.0)
 

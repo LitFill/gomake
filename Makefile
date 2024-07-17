@@ -4,7 +4,7 @@ BINNAME := gomake
 BUILDCMD := $(COMPILER) build
 OUTPUT := -o $(BINNAME)
 FLAGS := -v
-VERSION := 1.1.1
+VERSION := 1.1.2
 
 RUNCMD := $(COMPILER) run
 
@@ -55,7 +55,7 @@ docs: ## Create docs/scc.html
 	@touch "docs/scc.html"
 	@scc --overhead 1.0 --no-gen -n "scc.html" -s "complexity" -f "html" > docs/scc.html
 
-changelog: ## Generate CHANGELOG.md 
+changelog: docs ## Generate CHANGELOG.md 
 	@if ! [ -x "$(shell which git-chglog)" ]; then \
 		echo "git-chglog is not installed"; \
 		echo "installing git-chglog..."; \
